@@ -24,49 +24,95 @@ router.get('/', (req,res) => {
 })
 
 router.post('/search', (req, res) => {
-  queries = ['movie', 'show']
-  for(vals of queries) {
-    var qstring = req.body.qstring;
-    unirest.get(`http://api-public.guidebox.com/v2/search?type=${vals}&field=title&query=${qstring}`)
-      .header("Authorization", apiKey)
-      .end(function (result) {
-        for(i=0; i<result.body.results.length; i++){
-          var id = String(result.body.results[i].id)
-          var title = String(result.body.results[i].title)
-          idArray.push(id)
-          titleArray.push(title)
-        }
-    })
-  }
-  res.redirect('/showall')
-})
+  function getIdAndTitle() {
+    queries = ['movie', 'show']
+    for(let j=0; j< queries.length; j++){
+      var qstring = req.body.qstring;
+      unirest.get(`http://api-public.guidebox.com/v2/search?type=${queries[j]}&field=title&query=${qstring}`)
+        .header("Authorization", apiKey)
+        .end(function (result) {
+          for(let i=0; i<result.body.results.length; i++){
+            let id = Number(result.body.results[i].id)
+            let title = String(result.body.results[i].title)
+            idArray.push(id)
+            titleArray.push(title)
 
-router.get('/showall', (req, res)=> {
-  for(i=0; i<idArray.length; i++){
-      unirest.get(`http://api-public.guidebox.com/v2/shows/${Number(idArray[i])}/available_content`)
-      .header("Authorization", apiKey)
-      .end(function (result) {
-        var tempServiceArray = []
-        for(j=0; j<result.body.results.web.episodes.all_sources.length; j++){
-          tempServiceArray.push(result.body.results.web.episodes.all_sources[j].display_name)
-        }
-        // TODO: add in calling for description
-        serviceArray.push(tempServiceArray)
-        tempServiceArray = []
-      });
+            if(j==0) {
+              unirest.get(`http://api-public.guidebox.com/v2/movies/${id}`)
+                .header("Authorization", apiKey)
+                .end(function (result) {
+                  // console.log(titleArray[i])
+                  console.log(title)
+                  console.log(result.body)
+                  // res.send(result.body)
+                  var tempServiceArray = []
+                  try {
+                    for(let j=0; j<result.body.free_web_sources.length; j++){
+                      tempServiceArray.push(result.body.free_web_sources[j].display_name)
+                    }
+                    try {
+                      for(let j=0; j<result.body.tv_everywhere_web_sources.length; j++){
+                        tempServiceArray.push(result.body.tv_everywhere_web_sources[j].display_name)
+                      }
+                      try {
+                        for(let j=0; j<result.body.subscription_web_sources.length; j++){
+                          tempServiceArray.push(result.body.subscription_web_sources[j].display_name)
+                        }
+                        try {
+                          for(let j=0; j<result.body.purchase_web_sources.length; j++){
+                            tempServiceArray.push(result.body.purchase_web_sources[j].display_name)
+                          }
+                        }catch {
+                          null
+                        }}
+                      catch {
+                        null
+                    }}
+                    catch {
+                      null
+                  }}
+                  catch {
+                    null
+                  }
+                  // TODO: add in calling for description
+                  serviceArray.push(tempServiceArray)
+                });
+            }
+
+            if(j==1) {
+              unirest.get(`http://api-public.guidebox.com/v2/shows/${id}/available_content`)
+                .header("Authorization", apiKey)
+                .end(function (result) {
+                  // console.log(titleArray[i])
+                  // console.log(title)
+                  // console.log(result.body)
+                  var tempServiceArray = []
+                  try {
+                    for(let j=0; j<result.body.results.web.episodes.all_sources.length; j++){
+                      tempServiceArray.push(result.body.results.web.episodes.all_sources[j].display_name)
+                    }
+                  }catch {
+                    null
+                  }
+                  // TODO: add in calling for description
+                  serviceArray.push(tempServiceArray)
+                });
+            }
+          }
+      })
+    }
   }
 
   function combineArrays(){
-    console.log(idArray)
-    console.log(titleArray)
-    console.log(serviceArray)
-    for(i=0; i<idArray.length; i++){
+    for(let i=0; i<idArray.length; i++){
       fullResults = Object.assign({[i]: {id: idArray[i], title: titleArray[i], streaming_services: serviceArray[i]}}, fullResults)
     }
     res.redirect('/results')
   }
-  setTimeout(combineArrays, 3000)
+  getIdAndTitle()
+  setTimeout(combineArrays, 10000)
 })
+
 
 router.get('/results', (req, res) => {
   console.log(fullResults)
