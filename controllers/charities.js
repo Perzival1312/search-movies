@@ -39,9 +39,7 @@ router.post('/search', (req, res) => {
     })
   }
   res.redirect('/showall')
-
 })
-
 
 router.get('/showall', (req, res)=> {
   for(i=0; i<idArray.length; i++){
@@ -68,7 +66,6 @@ router.get('/showall', (req, res)=> {
     res.redirect('/results')
   }
   setTimeout(combineArrays, 3000)
-  // fullResults.push()
 })
 
 router.get('/results', (req, res) => {
