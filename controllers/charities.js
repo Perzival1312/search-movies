@@ -7,8 +7,6 @@ var idArray = [];
 var titleArray = [];
 var serviceArray = [];
 var fullResults = {};
-
-// "http://api-public.guidebox.com/v2/{endpoint}"
 // "https://api.guidebox.com/docs"
 
 router.get('/callsleft', (req, res) => {
@@ -41,10 +39,8 @@ router.post('/search', (req, res) => {
               unirest.get(`http://api-public.guidebox.com/v2/movies/${id}`)
                 .header("Authorization", apiKey)
                 .end(function (result) {
-                  // console.log(titleArray[i])
                   console.log(title)
                   console.log(result.body)
-                  // res.send(result.body)
                   var tempServiceArray = []
                   try {
                     for(let j=0; j<result.body.free_web_sources.length; j++){
@@ -74,7 +70,6 @@ router.post('/search', (req, res) => {
                   catch {
                     null
                   }
-                  // TODO: add in calling for description
                   serviceArray.push(tempServiceArray)
                 });
             }
@@ -83,9 +78,6 @@ router.post('/search', (req, res) => {
               unirest.get(`http://api-public.guidebox.com/v2/shows/${id}/available_content`)
                 .header("Authorization", apiKey)
                 .end(function (result) {
-                  // console.log(titleArray[i])
-                  // console.log(title)
-                  // console.log(result.body)
                   var tempServiceArray = []
                   try {
                     for(let j=0; j<result.body.results.web.episodes.all_sources.length; j++){
@@ -94,7 +86,6 @@ router.post('/search', (req, res) => {
                   }catch {
                     null
                   }
-                  // TODO: add in calling for description
                   serviceArray.push(tempServiceArray)
                 });
             }
