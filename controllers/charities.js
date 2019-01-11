@@ -77,7 +77,9 @@ router.get('/showall', (req, res)=> {
           // console.log(result.body.results.web.episodes.all_sources[j])
         }
         // TODO: add in calling for description
+        // console.log(tempServiceArray)
         serviceArray.push(tempServiceArray)
+        tempServiceArray = []
         // serviceArray.push(result.body.results.web.episodes.all_sources)
         // console.log(serviceArray)
         // console.log(result.body);//.results.web.episodes.all_sources)
@@ -92,6 +94,9 @@ router.get('/showall', (req, res)=> {
 
   }
   function combineArrays(){
+    console.log(idArray)
+    console.log(titleArray)
+    console.log(serviceArray)
     // console.log(serviceArray)
     for(i=0; i<idArray.length; i++){
       // console.log(serviceArray[i])
