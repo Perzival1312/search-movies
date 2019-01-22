@@ -23,7 +23,7 @@ router.get('/', (req,res) => {
 
 router.post('/search', (req, res) => {
   function getIdAndTitle() {
-    queries = ['movie', 'show']
+    queries = ['show']
     for(let j=0; j< queries.length; j++){
       var qstring = req.body.qstring;
       unirest.get(`http://api-public.guidebox.com/v2/search?type=${queries[j]}&field=title&query=${qstring}`)
@@ -35,12 +35,10 @@ router.post('/search', (req, res) => {
             idArray.push(id)
             titleArray.push(title)
 
-            if(j==0) {
+            if(j==0) { //movie
               unirest.get(`http://api-public.guidebox.com/v2/movies/${id}`)
                 .header("Authorization", apiKey)
                 .end(function (result) {
-                  console.log(title)
-                  console.log(result.body)
                   var tempServiceArray = []
                   try {
                     for(let j=0; j<result.body.free_web_sources.length; j++){
@@ -74,7 +72,7 @@ router.post('/search', (req, res) => {
                 });
             }
 
-            if(j==1) {
+            if(j==1) { //show
               unirest.get(`http://api-public.guidebox.com/v2/shows/${id}/available_content`)
                 .header("Authorization", apiKey)
                 .end(function (result) {
@@ -100,14 +98,33 @@ router.post('/search', (req, res) => {
     }
     res.redirect('/results')
   }
+
   getIdAndTitle()
-  setTimeout(combineArrays, 10000)
+
+  // new Promise(function(fulfill, reject){
+  //     //do something for 5 seconds
+  //     fulfill(result);
+  // }).then(function(result){
+  //     return new Promise(function(fulfill, reject){
+  //         //do something for 5 seconds
+  //         fulfill(result);
+  //     });
+  // }).then(function(result){
+  //     return new Promise(function(fulfill, reject){
+  //         //do something for 8 seconds
+  //         fulfill(result);
+  //     });
+  // }).then(function(result){
+  //     //do something with the result
+  // });
+
+  setTimeout(combineArrays, 3000)
 })
 
-
 router.get('/results', (req, res) => {
+  // res.status(200).send(fullResults)
   console.log(fullResults)
-  res.status(200).send(fullResults)
+  res.render('results', fullResults)
 })
 
 module.exports = router
